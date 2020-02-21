@@ -16,10 +16,12 @@ func TestRunsSuite(t *testing.T) {
 	// snippet of valid configuration that should be included on the
 	// ChallengeRequest passed as part of the test cases.
 
-	fixture := dns.NewFixture(&customDNSProviderSolver{},
+	solver := &gandiDNSProviderSolver{}
+	fixture := dns.NewFixture(solver,
+		dns.SetBinariesPath("__main__/hack/bin"),
 		dns.SetResolvedZone(zone),
 		dns.SetAllowAmbientCredentials(false),
-		dns.SetManifestPath("testdata/my-custom-solver"),
+		dns.SetManifestPath("testdata/gandi"),
 	)
 
 	fixture.RunConformance(t)

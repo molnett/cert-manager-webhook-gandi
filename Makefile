@@ -1,4 +1,4 @@
-IMAGE_NAME := "webhook"
+IMAGE_NAME := "cert-manager-webhook-gandi"
 IMAGE_TAG := "latest"
 
 OUT := $(shell pwd)/_out
@@ -9,12 +9,12 @@ verify:
 	go test -v .
 
 build:
-	docker build -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
+	docker build --rm -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
 
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:
+#	    --name cert-manager-webhook-gandi $BACKSLASH
 	helm template \
-	    --name example-webhook \
         --set image.repository=$(IMAGE_NAME) \
         --set image.tag=$(IMAGE_TAG) \
-        deploy/example-webhook > "$(OUT)/rendered-manifest.yaml"
+        deploy/cert-manager-webhook-gandi > "$(OUT)/rendered-manifest.yaml"

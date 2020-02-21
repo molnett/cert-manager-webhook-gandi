@@ -1,24 +1,24 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ include "example-webhook.fullname" . }}
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 ---
 # Grant the webhook permission to read the ConfigMap containing the Kubernetes
 # apiserver's requestheader-ca-certificate.
 # This ConfigMap is automatically created by the Kubernetes apiserver.
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "example-webhook.fullname" . }}:webhook-authentication-reader
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:webhook-authentication-reader
   namespace: kube-system
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 roleRef:
@@ -28,18 +28,18 @@ roleRef:
 subjects:
   - apiGroup: ""
     kind: ServiceAccount
-    name: {{ include "example-webhook.fullname" . }}
+    name: {{ include "cert-manager-webhook-gandi.fullname" . }}
     namespace: {{ .Release.Namespace }}
 ---
 # apiserver gets the auth-delegator role to delegate auth decisions to
 # the core apiserver
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "example-webhook.fullname" . }}:auth-delegator
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:auth-delegator
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 roleRef:
@@ -49,17 +49,17 @@ roleRef:
 subjects:
   - apiGroup: ""
     kind: ServiceAccount
-    name: {{ include "example-webhook.fullname" . }}
+    name: {{ include "cert-manager-webhook-gandi.fullname" . }}
     namespace: {{ .Release.Namespace }}
 ---
 # Grant cert-manager permission to validate using our apiserver
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "example-webhook.fullname" . }}:domain-solver
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:domain-solver
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 rules:
@@ -70,19 +70,19 @@ rules:
     verbs:
       - 'create'
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "example-webhook.fullname" . }}:domain-solver
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:domain-solver
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "example-webhook.fullname" . }}:domain-solver
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:domain-solver
 subjects:
   - apiGroup: ""
     kind: ServiceAccount
