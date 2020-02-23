@@ -23,7 +23,7 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 2. Install cert-manager
 
         kubectl create namespace cert-manager
-        kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.13.1/cert-manager.yaml
+        kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
         helm repo add jetstack https://charts.jetstack.io
         helm install cert-manager --namespace cert-manager jetstack/cert-manager
         kubectl get pods --namespace cert-manager --watch
