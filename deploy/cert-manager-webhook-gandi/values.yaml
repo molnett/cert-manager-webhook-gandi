@@ -8,6 +8,8 @@
 # here is recommended.
 groupName: certmanager.webhook.gandi
 
+logLevel: 6
+
 certManager:
   namespace: cert-manager
   serviceAccountName: cert-manager
