@@ -122,35 +122,6 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	return nil
 }
 
-func (c *gandiDNSProviderSolver) getDomainAndEntry(ch *v1alpha1.ChallengeRequest) (string, string) {
-	// Both ch.ResolvedZone and ch.ResolvedFQDN end with a dot: '.'
-	entry := strings.TrimSuffix(ch.ResolvedFQDN, ch.ResolvedZone)
-	entry = strings.TrimSuffix(entry, ".")
-	domain := strings.TrimSuffix(ch.ResolvedZone, ".")
-	return entry, domain
-}
-
-// Get Gandi API key from Kubernetes secret.
-func (c *gandiDNSProviderSolver) getApiKey(cfg *gandiDNSProviderConfig, namespace string) (*string, error) {
-	secretName := cfg.APIKeySecretRef.LocalObjectReference.Name
-
-	klog.V(6).Infof("try to load secret `%s` with key `%s`", secretName, cfg.APIKeySecretRef.Key)
-
-	sec, err := c.client.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("unable to get secret `%s`; %v", secretName, err)
-	}
-
-	secBytes, ok := sec.Data[cfg.APIKeySecretRef.Key]
-	if !ok {
-		return nil, fmt.Errorf("key %q not found in secret \"%s/%s\"", cfg.APIKeySecretRef.Key,
-			cfg.APIKeySecretRef.LocalObjectReference.Name, namespace)
-	}
-
-	apiKey := string(secBytes)
-	return &apiKey, nil
-}
-
 // CleanUp should delete the relevant TXT record from the DNS provider console.
 // If multiple TXT records exist with the same record name (e.g.
 // _acme-challenge.example.com) then **only** the record with the same `key`
@@ -224,3 +195,34 @@ func loadConfig(cfgJSON *extapi.JSON) (gandiDNSProviderConfig, error) {
 
 	return cfg, nil
 }
+
+
+func (c *gandiDNSProviderSolver) getDomainAndEntry(ch *v1alpha1.ChallengeRequest) (string, string) {
+	// Both ch.ResolvedZone and ch.ResolvedFQDN end with a dot: '.'
+	entry := strings.TrimSuffix(ch.ResolvedFQDN, ch.ResolvedZone)
+	entry = strings.TrimSuffix(entry, ".")
+	domain := strings.TrimSuffix(ch.ResolvedZone, ".")
+	return entry, domain
+}
+
+// Get Gandi API key from Kubernetes secret.
+func (c *gandiDNSProviderSolver) getApiKey(cfg *gandiDNSProviderConfig, namespace string) (*string, error) {
+	secretName := cfg.APIKeySecretRef.LocalObjectReference.Name
+
+	klog.V(6).Infof("try to load secret `%s` with key `%s`", secretName, cfg.APIKeySecretRef.Key)
+
+	sec, err := c.client.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("unable to get secret `%s`; %v", secretName, err)
+	}
+
+	secBytes, ok := sec.Data[cfg.APIKeySecretRef.Key]
+	if !ok {
+		return nil, fmt.Errorf("key %q not found in secret \"%s/%s\"", cfg.APIKeySecretRef.Key,
+			cfg.APIKeySecretRef.LocalObjectReference.Name, namespace)
+	}
+
+	apiKey := string(secBytes)
+	return &apiKey, nil
+}
+

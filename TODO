@@ -1,9 +1,6 @@
-- Where to find the [Docker image](...)
-- Edit [Makefile](Makefile) with image name and tag
 - Create automated build in dockerhub or github
 - Softlayer repo contains mock code, maybe this helps with testing.
 - Incorporate whatever useful in [README.dist.md](README.dist.md) here in this README
-- Run `rg example` to find remaining unchanged stanzas of the original example code
 - Makefile does not include download of test binaries
 
 ;; Local Variables:

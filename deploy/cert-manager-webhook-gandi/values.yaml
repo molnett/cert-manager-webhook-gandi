@@ -6,7 +6,7 @@
 # solve the DNS01 challenge.
 # This group name should be **unique**, hence using your own company's domain
 # here is recommended.
-groupName: certmanager.webhook.gandi
+groupName: acme.bwolf.me
 
 logLevel: 6
 
@@ -26,9 +26,8 @@ service:
   type: ClusterIP
   port: 443
 
-replicaCount: 1
-
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
