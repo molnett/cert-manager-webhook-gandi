@@ -34,10 +34,12 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
         kubectl create namespace cert-manager
         kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
+
         helm repo add jetstack https://charts.jetstack.io
         helm install cert-manager --namespace cert-manager \
             --set 'extraArgs={--dns01-recursive-nameservers=8.8.8.8:53\,1.1.1.1:53}' \
             jetstack/cert-manager
+
         kubectl get pods --namespace cert-manager --watch
 
     **Note**: refer to Name servers in the official [documentation](https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check) according the `extraArgs`.
@@ -163,8 +165,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
         kubectl delete gandi-credentials
 
 100. Uninstalling cert-manager:
-
-    This is out of scope here. Refer to the [documentation](https://cert-manager.io/docs/installation/uninstall/kubernetes/).
+This is out of scope here. Refer to the official [documentation](https://cert-manager.io/docs/installation/uninstall/kubernetes/).
 
 
 ## Development
@@ -178,11 +179,13 @@ Please note that the test is not a typical unit or integration test. Instead it 
 
 As said above, the conformance test is run against the real Gandi API. Therefore you *must* have a Gandi account, a domain and an API key.
 
-    cp testdata/gandi/api-key.yaml.sample testdata/gandi/api-key.yaml
-    echo -n $YOUR_GANDI_API_KEY | base64 | pbcopy # or xclip
-    $EDITOR testdata/gandi/api-key.yaml
-    ./scripts/fetch-test-binaries.sh
-    TEST_ZONE_NAME=example.com. go test -v .
+``` shell
+cp testdata/gandi/api-key.yaml.sample testdata/gandi/api-key.yaml
+echo -n $YOUR_GANDI_API_KEY | base64 | pbcopy # or xclip
+$EDITOR testdata/gandi/api-key.yaml
+./scripts/fetch-test-binaries.sh
+TEST_ZONE_NAME=example.com. go test -v .
+```
 
 
 [ACME DNS-01 challenge]: https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
