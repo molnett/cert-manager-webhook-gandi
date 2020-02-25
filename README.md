@@ -21,6 +21,7 @@ Ready made images are hosted on GitHub ([browse](https://github.com/bwolf/cert-m
 ### Release History
 Refer to the [ChangeLog](ChangeLog.md) file.
 
+
 ## Compatibility
 This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x on `amd64`. In theory it should work on other hardware platforms as well but no steps have been taken to verify this. Please drop me a note if you had success.
 
