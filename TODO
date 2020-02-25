@@ -1,4 +1,3 @@
-- Create release process
 - The softlayer repository (git@github.com:cgroschupp/cert-manager-webhook-softlayer.git) contains mock code, this helps testing
 - Makefile does not include a download target of the test binaries
 
