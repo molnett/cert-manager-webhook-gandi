@@ -1,8 +1,7 @@
-- Create release process
 - Reset Helm chart verison back to 0.1.0 or version 0.1
-- Softlayer repo contains mock code, maybe this helps with testing.
-- Incorporate whatever useful in [README.dist.md](README.dist.md) here in this README
-- Makefile does not include download of test binaries
+- Create release process
+- The softlayer repository contains mock code, maybe this helps with testing
+- Makefile does not include a download target of the test binaries
 
 ;; Local Variables:
 ;; mode: text
