@@ -126,21 +126,46 @@ Ready made images are hosted on GitHub, use at your own risk:
 
     Check the status of the Certificate:
 
-        kubectl describe certificate $NAME
+        kubectl describe certificate $DOMAIN
 
-1. Uninstall this webhook
+8. Issue a wildcard Certificate for your `$DOMAIN`:
+
+        cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
+        apiVersion: cert-manager.io/v1alpha2
+        kind: Certificate
+        metadata:
+          name: wildcard-example-com
+        spec:
+          dnsNames:
+          - '*.example-com'
+          issuerRef:
+            name: letsencrypt-staging
+          secretName: wildcard-example-com-tls
+        EOF
+
+    Check the status of the Certificate:
+
+        kubectl describe certificate $DOMAIN
+
+99. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
+        kubectl delete -f rbac.yaml
+        kubectl delete gandi-credentials
+
+100. Uninstalling cert-manager:
+
+    This is out of scope here. Refer to the [documentation](https://cert-manager.io/docs/installation/uninstall/kubernetes/).
 
 
 ## Development
-*Note*: If some tool (IDE or build process) fails resolving a dependency, it may be the cause that a indirect dependency uses `bzr` for versioning. In such a case it may help to put the `bzr` binary into `$PATH` or `$GOPATH/bin`.
+**Note**: If some tool (IDE or build process) fails resolving a dependency, it may be the cause that a indirect dependency uses `bzr` for versioning. In such a case it may help to put the `bzr` binary into `$PATH` or `$GOPATH/bin`.
 
 
 ## Conformance test
 Please note that the test is not a typical unit or integration test. Instead it invokes the web hook in a Kubernetes-like environment which asks the web hook to really call the DNS provider (.i.e. Gandi). It attempts to create an `TXT` entry like `cert-manager-dns01-tests.example.com`, verifies the presence of the entry via Google DNS. Finally it removes the entry by calling the cleanup method of web hook.
 
-*Note*: Replace the string `darwin` in the URL below with an OS matching your system (e.g. `linux`).
+**Note**: Replace the string `darwin` in the URL below with an OS matching your system (e.g. `linux`).
 
 As said above, the conformance test is run against the real Gandi API. Therefore you *must* have a Gandi account, a domain and an API key.
 
