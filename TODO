@@ -1,4 +1,3 @@
-- Reset Helm chart verison back to 0.1.0 or version 0.1
 - Create release process
 - The softlayer repository contains mock code, maybe this helps with testing
 - Makefile does not include a download target of the test binaries
