@@ -37,7 +37,12 @@ Build the container image `cert-manager-webhook-gandi:latest`:
             NAME                    CHART VERSION   APP VERSION     DESCRIPTION
             jetstack/cert-manager   v0.13.1         v0.13.1         A Helm chart for cert-manager
 
-3. Create the secret to keep the Gandi API key
+    Check the state and ensure that all pods are running fine (watch out for any issues regarding the `cert-manager-webhook-` pod  and its volume mounts):
+
+            kubectl describe pods -n cert-manager | less
+
+
+3. Create the secret to keep the Gandi API key:
 
         kubectl create secret generic gandi-credentials \
             --namespace cert-manager \
@@ -45,14 +50,14 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 
 4. Grant permission for the service-account to access the secret holding the Gandi API key:
 
-        kubectl apply -f rbac-gandi-credentials.yaml
+        kubectl apply -f rbac.yaml
 
-5. Deploy this webhook (add `--dry-run` to inspect the rendered image):
+5. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
             --set image.repository=cert-manager-webhook-gandi \
-            --debug \
+            --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
     * Check the logs
@@ -60,9 +65,9 @@ Build the container image `cert-manager-webhook-gandi:latest`:
             kubectl get pods -n cert-manager
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
-6. Create a staging issuer (email addresses which end with example.com are forbidden):
+6. Create a staging issuer (email addresses with the suffix example.com are forbidden):
 
-        cat << EOF | sed 's/invalid@example.com/your-email/' | kubectl apply -f -
+        cat << EOF | sed "s/invalid@example.com/$email/" | kubectl apply -f -
          apiVersion: cert-manager.io/v1alpha2
          kind: Issuer
          metadata:
@@ -71,18 +76,15 @@ Build the container image `cert-manager-webhook-gandi:latest`:
            acme:
              # The ACME server URL
              server: https://acme-staging-v02.api.letsencrypt.org/directory
-
              # Email address used for ACME registration
              email: invalid@example.com
-
              # Name of a secret used to store the ACME account private key
              privateKeySecretRef:
                name: letsencrypt-staging
-
              solvers:
              - dns01:
                  webhook:
-                   groupName: certmanager.webhook.gandi
+                   groupName: acme.bwolf.me
                    solverName: gandi
                    config:
                      apiKeySecretRef:
@@ -94,9 +96,9 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 
         kubectl describe issuer letsencrypt-staging
 
-8. Issue a certificate for the `$DOMAIN`
+8. Issue a certificate for `$DOMAIN`
 
-        cat << EOF | sed 's/example-com/$DOMAIN/' | kubectl apply -f -
+        cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
         apiVersion: cert-manager.io/v1alpha2
         kind: Certificate
         metadata:
