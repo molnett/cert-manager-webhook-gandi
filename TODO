@@ -1,3 +1,4 @@
+- Create release process
 - Reset Helm chart verison back to 0.1.0 or version 0.1
 - Create automated build in dockerhub or github
 - Softlayer repo contains mock code, maybe this helps with testing.
