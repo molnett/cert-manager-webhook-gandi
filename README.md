@@ -54,7 +54,11 @@ Ready made images are hosted on GitHub, use at your own risk:
         kubectl create secret generic gandi-credentials \
             --from-literal=api-token='<GANDI-API-KEY>'
 
-    *Note*: Refer to [RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/), especially that Roles can only be used to grant access to resources within a single namespace. As far as I understand cert-manager, the (Gandi) secret must reside in the same namespace as the `Issuer` resource.
+    *Note*: Refer to [RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/):
+
+    > A Role can only be used to grant access to resources within a single namespace.
+
+    As far as I understand cert-manager, the (Gandi) secret must reside in the same namespace as the `Issuer` resource.
 
 4. Grant permission for the service-account to access the secret holding the Gandi API key:
 
