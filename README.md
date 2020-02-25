@@ -11,21 +11,26 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 
     make build
 
-## Images
-Ready made images are hosted on GitHub, use at your own risk:
+
+## Image
+Ready made images are hosted on GitHub ([browse](https://github.com/bwolf/cert-manager-webhook-gandi/packages/137618/versions)). Use at your own risk:
 
     docker.pkg.github.com/bwolf/cert-manager-webhook-gandi/cert-manager-webhook-gandi
 
 
+## Compatibility
+This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x on `amd64`. In theory it should work on other hardware platforms as well but no steps have been taken to verify this. Please drop me a note if you had success.
+
+
 ## Testing with Minikube
-1. Build this webhook in Minikube
+1. Build this webhook in Minikube:
 
         minikube start --memory=4G --more-options
         eval $(minikube docker-env)
         make build
         docker images | grep webhook
 
-2. Install cert-manager
+2. Install [cert-manager] with [Helm]:
 
         kubectl create namespace cert-manager
         kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
@@ -35,11 +40,13 @@ Ready made images are hosted on GitHub, use at your own risk:
             jetstack/cert-manager
         kubectl get pods --namespace cert-manager --watch
 
+    **Note**: refer to Name servers in the official [documentation](https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check) according the `extraArgs`.
+
     **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
 
             helm search repo jetstack
 
-    Example output
+    Example output:
 
             NAME                    CHART VERSION   APP VERSION     DESCRIPTION
             jetstack/cert-manager   v0.13.1         v0.13.1         A Helm chart for cert-manager
@@ -49,16 +56,16 @@ Ready made images are hosted on GitHub, use at your own risk:
             kubectl describe pods -n cert-manager | less
 
 
-3. Create the secret to keep the Gandi API key:
+3. Create the secret to keep the Gandi API key in the default namespace, where later on the Issuer and the Certificate are created:
 
         kubectl create secret generic gandi-credentials \
             --from-literal=api-token='<GANDI-API-KEY>'
 
-    *Note*: Refer to [RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/):
+    **Note**: See [RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/):
 
     > A Role can only be used to grant access to resources within a single namespace.
 
-    As far as I understand cert-manager, the (Gandi) secret must reside in the same namespace as the `Issuer` resource.
+    *As far as I understand cert-manager, the `Secret` must reside in the same namespace as the `Issuer` and `Certificate` resource.*
 
 4. Grant permission for the service-account to access the secret holding the Gandi API key:
 
@@ -108,6 +115,8 @@ Ready made images are hosted on GitHub, use at your own risk:
     Check status of the Issuer:
 
         kubectl describe issuer letsencrypt-staging
+
+    *Note*: The production Issuer is [similar](https://cert-manager.io/docs/configuration/acme/).
 
 7. Issue a Certificate for your `$DOMAIN` ([documentation](https://cert-manager.io/docs/usage/certificate/)):
 
@@ -176,8 +185,9 @@ As said above, the conformance test is run against the real Gandi API. Therefore
     TEST_ZONE_NAME=example.com. go test -v .
 
 
-[cert-manager]: https://cert-manager.io/
 [ACME DNS-01 challenge]: https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
+[cert-manager]: https://cert-manager.io/
 [Gandi]: https://gandi.net/
 [Gandi LiveDNS API]: https://doc.livedns.gandi.net
+[Helm]: https://helm.sh
 [Kubernetes]: https://kubernetes.io/
