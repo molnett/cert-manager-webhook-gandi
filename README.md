@@ -92,6 +92,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
             --namespace cert-manager \
             --set image.tag=v0.1.1 \
             --set logLevel=2 \
+            ./deploy/cert-manager-webhook-gandi
 
     Check the logs
 
