@@ -176,6 +176,12 @@ This is out of scope here. Refer to the official [documentation](https://cert-ma
 **Note**: If some tool (IDE or build process) fails resolving a dependency, it may be the cause that a indirect dependency uses `bzr` for versioning. In such a case it may help to put the `bzr` binary into `$PATH` or `$GOPATH/bin`.
 
 
+## Release process
+- Code changes result in a new image version and Git tag
+- Helm chart changes result in a new chart version
+- All other changes are pushed to master
+
+
 ## Conformance test
 Please note that the test is not a typical unit or integration test. Instead it invokes the web hook in a Kubernetes-like environment which asks the web hook to really call the DNS provider (.i.e. Gandi). It attempts to create an `TXT` entry like `cert-manager-dns01-tests.example.com`, verifies the presence of the entry via Google DNS. Finally it removes the entry by calling the cleanup method of web hook.
 
