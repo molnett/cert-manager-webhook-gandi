@@ -77,13 +77,21 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
         kubectl apply -f rbac.yaml
 
-5. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
+5. Deploy this locally built webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
             --set image.repository=cert-manager-webhook-gandi \
+            --set image.tag=latest \
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
+
+    To deploy using the image from Docker Hub (for example using the `v0.1.1` tag):
+
+        helm install cert-manager-webhook-gandi \
+            --namespace cert-manager \
+            --set image.tag=v0.1.1 \
+            --set logLevel=2 \
 
     Check the logs
 
