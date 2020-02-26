@@ -13,9 +13,9 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 
 
 ## Image
-Ready made images are hosted on GitHub ([browse](https://github.com/bwolf/cert-manager-webhook-gandi/packages/137618/versions)). Use at your own risk:
+Ready made images are hosted on Docker Hub ([browse](https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi)). Use at your own risk:
 
-    docker.pkg.github.com/bwolf/cert-manager-webhook-gandi/cert-manager-webhook-gandi
+    bwolf/cert-manager-webhook-gandi
 
 
 ### Release History

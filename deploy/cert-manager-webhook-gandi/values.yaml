@@ -15,7 +15,7 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: docker.pkg.github.com/bwolf/cert-manager-webhook-gandi/cert-manager-webhook-gandi
+  repository: bwolf/cert-manager-webhook-gandi
   tag: latest
   pullPolicy: IfNotPresent
 
