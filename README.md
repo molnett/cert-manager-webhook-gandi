@@ -13,7 +13,7 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 
 
 ## Image
-Ready made images are hosted on Docker Hub ([browse](https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi)). Use at your own risk:
+Ready made images are hosted on Docker Hub ([image tags]). Use at your own risk:
 
     bwolf/cert-manager-webhook-gandi
 
@@ -46,7 +46,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
         kubectl get pods --namespace cert-manager --watch
 
-    **Note**: refer to Name servers in the official [documentation](https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check) according the `extraArgs`.
+    **Note**: refer to Name servers in the official [documentation][setting-nameservers-for-dns01-self-check] according the `extraArgs`.
 
     **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
 
@@ -67,7 +67,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
         kubectl create secret generic gandi-credentials \
             --from-literal=api-token='<GANDI-API-KEY>'
 
-    **Note**: See [RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/):
+    **Note**: See [RBAC Authorization]:
 
     > A Role can only be used to grant access to resources within a single namespace.
 
@@ -130,9 +130,9 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
         kubectl describe issuer letsencrypt-staging
 
-    *Note*: The production Issuer is [similar](https://cert-manager.io/docs/configuration/acme/).
+    *Note*: The production Issuer is [similar][ACME documentation].
 
-7. Issue a Certificate for your `$DOMAIN` ([documentation](https://cert-manager.io/docs/usage/certificate/)):
+7. Issue a [Certificate] for your `$DOMAIN`:
 
         cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
         apiVersion: cert-manager.io/v1alpha2
@@ -177,7 +177,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
         kubectl delete gandi-credentials
 
 100. Uninstalling cert-manager:
-This is out of scope here. Refer to the official [documentation](https://cert-manager.io/docs/installation/uninstall/kubernetes/).
+This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 
 ## Development
@@ -188,6 +188,7 @@ This is out of scope here. Refer to the official [documentation](https://cert-ma
 - Code changes result in a new image version and Git tag
 - Helm chart changes result in a new chart version
 - All other changes are pushed to master
+- All versions are to be documented in [ChangeLog](ChangeLog.md)
 
 
 ## Conformance test
@@ -207,8 +208,14 @@ TEST_ZONE_NAME=example.com. go test -v .
 
 
 [ACME DNS-01 challenge]: https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
+[ACME documentation]: https://cert-manager.io/docs/configuration/acme/
+[Certificate]: https://cert-manager.io/docs/usage/certificate/
 [cert-manager]: https://cert-manager.io/
 [Gandi]: https://gandi.net/
 [Gandi LiveDNS API]: https://doc.livedns.gandi.net
 [Helm]: https://helm.sh
+[image tags]: https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi
 [Kubernetes]: https://kubernetes.io/
+[RBAC Authorization]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+[setting-nameservers-for-dns01-self-check]: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
+[cert-manager-uninstall]: https://cert-manager.io/docs/installation/uninstall/kubernetes/
