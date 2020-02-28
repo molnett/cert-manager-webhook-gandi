@@ -102,29 +102,29 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden):
 
         cat << EOF | sed "s/invalid@example.com/$email/" | kubectl apply -f -
-         apiVersion: cert-manager.io/v1alpha2
-         kind: Issuer
-         metadata:
-           name: letsencrypt-staging
-           namespace: default
-         spec:
-           acme:
-             # The ACME server URL
-             server: https://acme-staging-v02.api.letsencrypt.org/directory
-             # Email address used for ACME registration
-             email: invalid@example.com
-             # Name of a secret used to store the ACME account private key
-             privateKeySecretRef:
-               name: letsencrypt-staging
-             solvers:
-             - dns01:
-                 webhook:
-                   groupName: acme.bwolf.me
-                   solverName: gandi
-                   config:
-                     apiKeySecretRef:
-                       key: api-token
-                       name: gandi-credentials
+        apiVersion: cert-manager.io/v1alpha2
+        kind: Issuer
+        metadata:
+          name: letsencrypt-staging
+          namespace: default
+        spec:
+          acme:
+            # The ACME server URL
+            server: https://acme-staging-v02.api.letsencrypt.org/directory
+            # Email address used for ACME registration
+            email: invalid@example.com
+            # Name of a secret used to store the ACME account private key
+            privateKeySecretRef:
+              name: letsencrypt-staging
+            solvers:
+            - dns01:
+                webhook:
+                  groupName: acme.bwolf.me
+                  solverName: gandi
+                  config:
+                    apiKeySecretRef:
+                      key: api-token
+                      name: gandi-credentials
         EOF
 
     Check status of the Issuer:
@@ -152,6 +152,10 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
         kubectl describe certificate $DOMAIN
 
+    Display the details like the common name and subject alternative names:
+
+        kubectl get secret $DOMAIN-tls -o yaml
+
 8. Issue a wildcard Certificate for your `$DOMAIN`:
 
         cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
@@ -170,6 +174,10 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
     Check the status of the Certificate:
 
         kubectl describe certificate $DOMAIN
+
+    Display the details like the common name and subject alternative names:
+
+        kubectl get secret wildcard-$DOMAIN-tls -o yaml
 
 99. Uninstall this webhook:
 
