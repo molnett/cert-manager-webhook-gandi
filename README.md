@@ -99,6 +99,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
             kubectl get pods -n cert-manager --watch
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
+
 6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
     See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
