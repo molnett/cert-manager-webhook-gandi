@@ -9,7 +9,7 @@ verify:
 	go test -v .
 
 build:
-	docker build --rm -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
+	sudo podman build --rm -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
 
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:
