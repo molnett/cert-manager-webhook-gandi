@@ -102,7 +102,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden):
 
         cat << EOF | sed "s/invalid@example.com/$email/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
+        apiVersion: cert-manager.io/v1
         kind: Issuer
         metadata:
           name: letsencrypt-staging
@@ -136,7 +136,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 7. Issue a [Certificate] for your `$DOMAIN`:
 
         cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
+        apiVersion: cert-manager.io/v1
         kind: Certificate
         metadata:
           name: example-com
@@ -159,7 +159,7 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 8. Issue a wildcard Certificate for your `$DOMAIN`:
 
         cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
+        apiVersion: cert-manager.io/v1
         kind: Certificate
         metadata:
           name: wildcard-example-com
