@@ -16,3 +16,6 @@
 
 # Ignore the built binary
 cert-manager-webhook-gandi
+
+# JetBrains
+.idea

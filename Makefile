@@ -11,6 +11,10 @@ verify:
 build:
 	sudo podman build --rm -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
 
+package:
+	helm package deploy/cert-manager-webhook-gandi -d charts/
+	helm repo index charts/ --url https://hexa-solutions.github.io/cert-manager-webhook-gandi/charts
+
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:
 #	    --name cert-manager-webhook-gandi $BACKSLASH
