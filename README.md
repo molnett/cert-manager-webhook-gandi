@@ -72,27 +72,32 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
 4. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
+    *The `features.apiPriorityAndFairness` argument must be removed or set to `false` for Kubernetes older than 1.20.*
+
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
+            --set features.apiPriorityAndFairness=true \
             --set image.repository=cert-manager-webhook-gandi \
             --set image.tag=latest \
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    To deploy using the image from Docker Hub (for example using the `v0.2.0` tag):
+    To deploy using the image from Docker Hub (for example using the `0.2.0` tag):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
-            --set image.tag=v0.2.0 \
+            --set features.apiPriorityAndFairness=true \
+            --set image.tag=0.2.0 \
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    To deploy using the Helm repository (for example using the `v0.2.0` tag):
+    To deploy using the Helm repository (for example using the `v0.2.0` version):
      
         helm install cert-manager-webhook-gandi \
             --repo https://hexa-solutions.github.io/cert-manager-webhook-gandi/charts
-            --namespace cert-manager \
             --version v0.2.0 \
+            --namespace cert-manager \
+            --set features.apiPriorityAndFairness=true \
             --set logLevel=2
 
     Check the logs
@@ -100,7 +105,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
             kubectl get pods -n cert-manager --watch
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
-5. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
+6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
     See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
 
@@ -114,7 +119,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     *Note*: The production Issuer is [similar][ACME documentation].
 
-6. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
+7. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
@@ -132,7 +137,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
 
-7. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
+8. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
@@ -150,13 +155,13 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
 
-8. Uninstall this webhook:
+9. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
         kubectl delete -f rbac.yaml
         kubectl delete gandi-credentials
 
-9. Uninstalling cert-manager:
+10. Uninstalling cert-manager:
 This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 

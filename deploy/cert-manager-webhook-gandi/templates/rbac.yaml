@@ -10,8 +10,8 @@ metadata:
     heritage: {{ .Release.Service }}
 ---
 # Grant the webhook permission to read the ConfigMap containing the Kubernetes
-# apiserver's requestheader-ca-certificate.
-# This ConfigMap is automatically created by the Kubernetes apiserver.
+# apiserver's requestheader-ca-certificate
+# This ConfigMap is automatically created by the Kubernetes apiserver
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -70,14 +70,6 @@ rules:
       - "*"
     verbs:
       - "create"
-  - apiGroups:
-      - "flowcontrol.apiserver.k8s.io"
-    resources:
-      - "prioritylevelconfigurations"
-      - "flowschemas"
-    verbs:
-      - "list"
-      - "watch"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -128,3 +120,46 @@ subjects:
     kind: ServiceAccount
     name: {{ include "cert-manager-webhook-gandi.fullname" . }}
     namespace: {{ .Values.certManager.namespace | quote }}
+{{- if .Values.features.apiPriorityAndFairness }}
+---
+# Grant cert-manager-webhook-gandi permission to read the flow control mechanism (APF)
+# API Priority and Fairness is enabled by default in Kubernetes 1.20
+# https://kubernetes.io/docs/concepts/cluster-administration/flow-control/
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:flowcontrol-solver
+  labels:
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - "flowcontrol.apiserver.k8s.io"
+    resources:
+      - "prioritylevelconfigurations"
+      - "flowschemas"
+    verbs:
+      - "list"
+      - "watch"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:flowcontrol-solver
+  labels:
+    app: {{ include "cert-manager-webhook-gandi.name" . }}
+    chart: {{ include "cert-manager-webhook-gandi.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "cert-manager-webhook-gandi.fullname" . }}:flowcontrol-solver
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "cert-manager-webhook-gandi.fullname" . }}
+    namespace: {{ .Values.certManager.namespace | quote }}
+{{- end }}

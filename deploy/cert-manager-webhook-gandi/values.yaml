@@ -26,6 +26,11 @@ service:
   type: ClusterIP
   port: 443
 
+features:
+  # API Priority and Fairness should be enabled from Kubernetes 1.20
+  # https://kubernetes.io/docs/concepts/cluster-administration/flow-control/
+  apiPriorityAndFairness: false
+
 resources:
   {}
   # We usually recommend not to specify default resources and to leave this as a conscious
