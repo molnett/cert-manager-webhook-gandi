@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	GandiLiveDnsBaseUrl = "https://dns.api.gandi.net/api/v5"
+	GandiLiveDnsBaseUrl = "https://api.gandi.net/v5/livedns"
 )
 
 type GandiClient struct {
@@ -33,7 +33,7 @@ type GandiRRSetValues struct {
 
 func NewGandiClient(apiKey string) *GandiClient {
 	return &GandiClient{
-		apiKey: apiKey,
+		apiKey:              apiKey,
 		dumpRequestResponse: false,
 	}
 }
@@ -48,8 +48,7 @@ func (c *GandiClient) doRequest(req *http.Request, readResponseBody bool) (int, 
 		fmt.Printf("Request: %q\n", dump)
 	}
 
-	req.Header.Set("X-Api-Key", c.apiKey)
-
+	req.Header.Set("Authorization", fmt.Sprintf("Apikey %s", c.apiKey))
 	client := http.Client{
 		Timeout: 30 * time.Second,
 	}
@@ -76,8 +75,9 @@ func (c *GandiClient) doRequest(req *http.Request, readResponseBody bool) (int, 
 }
 
 func (c *GandiClient) HasTxtRecord(domain *string, name *string) (bool, error) {
-	// curl -H "X-Api-Key: $APIKEY" \
-	//     https://dns.api.gandi.net/api/v5/domains/<DOMAIN>/records/<NAME>/<TYPE>
+	// curl -X GET -H "Content-Type: application/json" \
+	//   -H "Authorization: Apikey $APIKEY" \
+	//   https://api.gandi.net/v5/livedns/domains/<DOMAIN>/records/<NAME>/<TYPE>
 	url := fmt.Sprintf("%s/%s/TXT", c.gandiRecordsUrl(*domain), *name)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -101,12 +101,9 @@ func (c *GandiClient) HasTxtRecord(domain *string, name *string) (bool, error) {
 
 func (c *GandiClient) CreateTxtRecord(domain *string, name *string, value *string, ttl int) error {
 	// curl -X POST -H "Content-Type: application/json" \
-	//             -H "X-Api-Key: $APIKEY" \
-	//             -d '{"rrset_name": "<NAME>",
-	//                  "rrset_type": "<TYPE>",
-	//                  "rrset_ttl": 10800,
-	//                  "rrset_values": ["<VALUE>"]}' \
-	//             https://dns.api.gandi.net/api/v5/domains/<DOMAIN>/records
+	//   -H "Authorization: Apikey $APIKEY" \
+	//   -d '{"rrset_name": "<NAME>", "rrset_type": "<TYPE>", "rrset_ttl": 10800, "rrset_values": ["<VALUE>"]}' \
+	//   https://api.gandi.net/v5/livedns/domains/<DOMAIN>/records
 	rrs := GandiRRSet{Name: *name, Type: "TXT", TTL: ttl, Values: []string{*value}}
 	body, err := json.Marshal(rrs)
 	if err != nil {
@@ -135,10 +132,9 @@ func (c *GandiClient) CreateTxtRecord(domain *string, name *string, value *strin
 
 func (c *GandiClient) UpdateTxtRecord(domain *string, name *string, value *string, ttl int) error {
 	// curl -X PUT -H "Content-Type: application/json" \
-	//            -H "X-Api-Key: $APIKEY" \
-	//            -d '{"rrset_ttl": 10800,
-	//                 "rrset_values":["<VALUE>"]}' \
-	//            https://dns.api.gandi.net/api/v5/domains/<DOMAIN>/records/<NAME>/<TYPE>
+	//   -H "Authorization: Apikey $APIKEY" \
+	//   -d '{"rrset_ttl": 10800, "rrset_values":["<VALUE>"]}' \
+	//   https://api.gandi.net/v5/livedns/domains/<DOMAIN>/records/<NAME>/<TYPE>
 	rrs := GandiRRSetValues{TTL: ttl, Values: []string{*value}}
 	body, err := json.Marshal(rrs)
 	if err != nil {
@@ -167,8 +163,8 @@ func (c *GandiClient) UpdateTxtRecord(domain *string, name *string, value *strin
 
 func (c *GandiClient) DeleteTxtRecord(domain *string, name *string) error {
 	// curl -X DELETE -H "Content-Type: application/json" \
-	//  -H "X-Api-Key: $APIKEY" \
-	// https://dns.api.gandi.net/api/v5/domains/<DOMAIN>/records/<NAME>/<TYPE>
+	//   -H "Authorization: Apikey $APIKEY" \
+	//   https://api.gandi.net/v5/livedns/domains/<DOMAIN>/records/<NAME>/<TYPE>
 	url := fmt.Sprintf("%s/%s/TXT", c.gandiRecordsUrl(*domain), *name)
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
@@ -186,4 +182,3 @@ func (c *GandiClient) DeleteTxtRecord(domain *string, name *string) error {
 
 	return nil
 }
-

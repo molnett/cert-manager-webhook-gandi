@@ -14,7 +14,7 @@ spec:
     solvers:
     - dns01:
         webhook:
-          groupName: acme.bwolf.me
+          groupName: acme.h6s.io
           solverName: gandi
           config:
             apiKeySecretRef:

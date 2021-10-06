@@ -6,7 +6,7 @@
 # solve the DNS01 challenge.
 # This group name should be **unique**, hence using your own company's domain
 # here is recommended.
-groupName: acme.bwolf.me
+groupName: acme.h6s.io
 
 logLevel: 6
 
@@ -15,8 +15,8 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: bwolf/cert-manager-webhook-gandi
-  tag: latest
+  repository: hexasolutions/cert-manager-webhook-gandi
+  tag: 0.2.0
   pullPolicy: IfNotPresent
 
 nameOverride: ""

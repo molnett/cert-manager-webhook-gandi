@@ -7,7 +7,7 @@
 
 # Test binary, build with `go test -c`
 *.test
-/__main__/
+/_test/
 /apiserver.local.config/
 /_out/
 

@@ -1,10 +1,13 @@
 .git
 .gitignore
 .idea
-LICENSE
+.dockerignore
+.github
 Makefile
 README.*
-__main__
+LICENSE
+CHANGELOG.*
+_test
 _out
 apiserver.local.config
 cert-manager-webhook-gandi
@@ -12,3 +15,7 @@ deploy
 main_test.go
 scripts
 testdata
+charts
+examples
+*.yaml
+Dockerfile
