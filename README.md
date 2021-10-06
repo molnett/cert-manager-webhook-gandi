@@ -19,7 +19,7 @@ Ready made images are hosted on Docker Hub ([image tags]). Use at your own risk:
 
 
 ### Release History
-Refer to the [ChangeLog](CHANGELOG.md) file.
+Refer to the [CHANGELOG](CHANGELOG.md) file.
 
 
 ## Compatibility
@@ -68,17 +68,9 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
         kubectl create secret generic gandi-credentials \
             --namespace cert-manager --from-literal=api-token='<GANDI-API-KEY>'
 
-    **Note**: See [RBAC Authorization]:
-
-    > A Role can only be used to grant access to resources within a single namespace.
-
     *The `Secret` must reside in the same namespace as `cert-manager`.*
 
-4. Grant permission for the service-account to access the secret holding the Gandi API key:
-
-        kubectl apply -f rbac.yaml
-
-5. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
+4. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
@@ -108,7 +100,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
             kubectl get pods -n cert-manager --watch
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
-7. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
+5. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
     See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
 
@@ -122,7 +114,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     *Note*: The production Issuer is [similar][ACME documentation].
 
-8. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
+6. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
@@ -140,7 +132,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
 
-9. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
+7. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
@@ -158,13 +150,13 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
     If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
 
-10. Uninstall this webhook:
+8. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
         kubectl delete -f rbac.yaml
         kubectl delete gandi-credentials
 
-11. Uninstalling cert-manager:
+9. Uninstalling cert-manager:
 This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 
@@ -198,10 +190,9 @@ make clean
 [Certificate]: https://cert-manager.io/docs/usage/certificate/
 [cert-manager]: https://cert-manager.io/
 [Gandi]: https://gandi.net/
-[Gandi LiveDNS API]: https://doc.livedns.gandi.net
+[Gandi LiveDNS API]: https://api.gandi.net/docs/livedns/
 [Helm]: https://helm.sh
 [image tags]: https://hub.docker.com/r/hexasolutions/cert-manager-webhook-gandi
 [Kubernetes]: https://kubernetes.io/
-[RBAC Authorization]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 [setting-nameservers-for-dns01-self-check]: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
 [cert-manager-uninstall]: https://cert-manager.io/docs/installation/uninstall/kubernetes/
