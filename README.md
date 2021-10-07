@@ -158,8 +158,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 9. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
-        kubectl delete -f rbac.yaml
-        kubectl delete gandi-credentials
+        kubectl delete gandi-credentials --namespace cert-manager
 
 10. Uninstalling cert-manager:
 This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
@@ -173,7 +172,7 @@ This is out of scope here. Refer to the official [documentation][cert-manager-un
 - Code changes result in a new image version and Git tag
 - Helm chart changes result in a new chart version
 - All other changes are pushed to master
-- All versions are to be documented in [ChangeLog](CHANGELOG.md)
+- All versions are to be documented in [CHANGELOG](CHANGELOG.md)
 
 
 ## Conformance test
