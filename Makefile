@@ -42,7 +42,7 @@ build:
 
 package:
 	helm package deploy/cert-manager-webhook-gandi -d charts/
-	helm repo index charts/ --url https://hexa-solutions.github.io/cert-manager-webhook-gandi/charts
+	helm repo index charts/ --url https://hexa-solutions.github.io/cert-manager-webhook-gandi
 
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:

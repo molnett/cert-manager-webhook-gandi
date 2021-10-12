@@ -47,18 +47,18 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
         kubectl get pods --namespace cert-manager --watch
 
-    **Note**: refer to Name servers in the official [documentation][setting-nameservers-for-dns01-self-check] according the `extraArgs`.
+   **Note**: refer to Name servers in the official [documentation][setting-nameservers-for-dns01-self-check] according the `extraArgs`.
 
-    **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
+   **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
 
             helm search repo jetstack
 
-    Example output:
+   Example output:
 
             NAME                    CHART VERSION   APP VERSION     DESCRIPTION
             jetstack/cert-manager   v1.5.4          v1.5.4          A Helm chart for cert-manager
 
-    Check the state and ensure that all pods are running fine (watch out for any issues regarding the `cert-manager-webhook-` pod and its volume mounts):
+   Check the state and ensure that all pods are running fine (watch out for any issues regarding the `cert-manager-webhook-` pod and its volume mounts):
 
             kubectl describe pods -n cert-manager | less
 
@@ -68,11 +68,11 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
         kubectl create secret generic gandi-credentials \
             --namespace cert-manager --from-literal=api-token='<GANDI-API-KEY>'
 
-    *The `Secret` must reside in the same namespace as `cert-manager`.*
+   *The `Secret` must reside in the same namespace as `cert-manager`.*
 
 4. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
-    *The `features.apiPriorityAndFairness` argument must be removed or set to `false` for Kubernetes older than 1.20.*
+   *The `features.apiPriorityAndFairness` argument must be removed or set to `false` for Kubernetes older than 1.20.*
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
@@ -82,7 +82,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    To deploy using the image from Docker Hub (for example using the `0.2.0` tag):
+   To deploy using the image from Docker Hub (for example using the `0.2.0` tag):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
@@ -91,69 +91,69 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    To deploy using the Helm repository (for example using the `v0.2.0` version):
-     
+   To deploy using the Helm repository (for example using the `v0.2.0` version):
+
         helm install cert-manager-webhook-gandi \
-            --repo https://hexa-solutions.github.io/cert-manager-webhook-gandi/charts
+            --repo https://hexa-solutions.github.io/cert-manager-webhook-gandi
             --version v0.2.0 \
             --namespace cert-manager \
             --set features.apiPriorityAndFairness=true \
             --set logLevel=2
 
-    Check the logs
+   Check the logs
 
             kubectl get pods -n cert-manager --watch
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
 6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
-    See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
+   See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
 
-    Don't forget to replace email `invalid@example.com`.
+   Don't forget to replace email `invalid@example.com`.
 
-    Check status of the Issuer:
+   Check status of the Issuer:
 
         kubectl describe issuer letsencrypt-staging
 
-    You can deploy a ClusterIssuer instead : see [letsencrypt-staging-clusterissuer.yaml](examples/issuers/letsencrypt-staging-clusterissuer.yaml)
+   You can deploy a ClusterIssuer instead : see [letsencrypt-staging-clusterissuer.yaml](examples/issuers/letsencrypt-staging-clusterissuer.yaml)
 
-    *Note*: The production Issuer is [similar][ACME documentation].
+   *Note*: The production Issuer is [similar][ACME documentation].
 
 7. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
-    Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
+   Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
-    Create the Certificate:
+   Create the Certificate:
 
         kubectl apply -f ./examples/certificates/certif-example-com.yaml
 
-    Check the status of the Certificate:
+   Check the status of the Certificate:
 
         kubectl describe certificate example-com
 
-    Display the details like the common name and subject alternative names:
+   Display the details like the common name and subject alternative names:
 
         kubectl get secret example-com-tls -o yaml
 
-    If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
+   If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
 
 8. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
-    Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
+   Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
-    Create the Certificate:
+   Create the Certificate:
 
         kubectl apply -f ./examples/certificates/certif-wildcard-example-com.yaml
 
-    Check the status of the Certificate:
+   Check the status of the Certificate:
 
         kubectl describe certificate wildcard-example-com
 
-    Display the details like the common name and subject alternative names:
+   Display the details like the common name and subject alternative names:
 
         kubectl get secret wildcard-example-com-tls -o yaml
 
-    If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
+   If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
 
 9. Uninstall this webhook:
 
@@ -161,19 +161,22 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
         kubectl delete gandi-credentials --namespace cert-manager
 
 10. Uninstalling cert-manager:
-This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
+    This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 
 ## Development
 **Note**: If some tool (IDE or build process) fails resolving a dependency, it may be the cause that a indirect dependency uses `bzr` for versioning. In such a case it may help to put the `bzr` binary into `$PATH` or `$GOPATH/bin`.
 
 
-## Release process
-- Code changes result in a new image version and Git tag
-- Helm chart changes result in a new chart version
+## Release process (automated with [GitHub actions](.github/workflows/main.yml))
+- Changes in the Go code result in the build of a Docker image and the release of a new Helm chart
+- Changes at Helm chart level only, result in the release of a new Chart without building a new Docker image
 - All other changes are pushed to master
 - All versions are to be documented in [CHANGELOG](CHANGELOG.md)
 
+**Note**: All changes to the Go code or Helm chart must go with a version tag `vX.X.X` to trigger the GitHub workflow
+
+**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/hexa-solutions/cert-manager-webhook-gandi/releases)
 
 ## Conformance test
 Please note that the test is not a typical unit or integration test. Instead it invokes the web hook in a Kubernetes-like environment which asks the web hook to really call the DNS provider (.i.e. Gandi). It attempts to create an `TXT` entry like `cert-manager-dns01-tests.example.com`, verifies the presence of the entry via Google DNS. Finally it removes the entry by calling the cleanup method of web hook.

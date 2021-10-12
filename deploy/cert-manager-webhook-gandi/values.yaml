@@ -16,7 +16,7 @@ certManager:
 
 image:
   repository: hexasolutions/cert-manager-webhook-gandi
-  tag: 0.2.0
+  tag: v0.1.1
   pullPolicy: IfNotPresent
 
 nameOverride: ""
