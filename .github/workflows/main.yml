@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      image_updated: ${{ steps.update_image.outputs.commit != '' }}
+      tag_commit: ${{ steps.update_image.outputs.commit }}
 
     steps:
       - name: Check out repo
@@ -121,15 +121,27 @@ jobs:
 
     if: |
       always() && needs.base.result == 'success' &&
-      ((needs.build.result == 'success' && needs.build.outputs.image_updated) || (needs.build.result == 'skipped' && needs.base.outputs.yaml_updated == 'true'))
+      ((needs.build.result == 'success' && needs.build.outputs.tag_commit != '' ) || (needs.build.result == 'skipped' && needs.base.outputs.yaml_updated == 'true'))
 
     runs-on: ubuntu-latest
 
     steps:
+      - name: Retrieve commit ref
+        id: commit_ref
+        run: |
+          if [[ '${{ needs.build.outputs.tag_commit }}' = '' ]]; then
+            sha=${{ github.sha }}
+          else
+            sha=${{ needs.build.outputs.tag_commit }}
+          fi
+
+          echo ::set-output name=sha::$sha
+
       - name: Check out repo
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{ steps.commit_ref.outputs.sha }}
 
       - name: Configure Git
         run: |
