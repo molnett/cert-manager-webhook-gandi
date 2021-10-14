@@ -1,4 +1,4 @@
-module github.com/hexa-solutions/cert-manager-webhook-gandi
+module github.com/bwolf/cert-manager-webhook-gandi
 
 go 1.17
 

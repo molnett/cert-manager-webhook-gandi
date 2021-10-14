@@ -15,7 +15,7 @@ Build the container image `cert-manager-webhook-gandi:latest`:
 ## Image
 Ready made images are hosted on Docker Hub ([image tags]). Use at your own risk:
 
-    hexasolutions/cert-manager-webhook-gandi
+    bwolf/cert-manager-webhook-gandi
 
 
 ### Release History
@@ -94,7 +94,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
    To deploy using the Helm repository (for example using the `v0.2.0` version):
 
         helm install cert-manager-webhook-gandi \
-            --repo https://hexa-solutions.github.io/cert-manager-webhook-gandi
+            --repo https://bwolf.github.io/cert-manager-webhook-gandi
             --version v0.2.0 \
             --namespace cert-manager \
             --set features.apiPriorityAndFairness=true \
@@ -176,7 +176,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
 
 **Note**: All changes to the Go code or Helm chart must go with a version tag `vX.X.X` to trigger the GitHub workflow
 
-**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/hexa-solutions/cert-manager-webhook-gandi/releases)
+**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/bwolf/cert-manager-webhook-gandi/releases)
 
 ## Conformance test
 Please note that the test is not a typical unit or integration test. Instead it invokes the web hook in a Kubernetes-like environment which asks the web hook to really call the DNS provider (.i.e. Gandi). It attempts to create an `TXT` entry like `cert-manager-dns01-tests.example.com`, verifies the presence of the entry via Google DNS. Finally it removes the entry by calling the cleanup method of web hook.
@@ -199,7 +199,7 @@ make clean
 [Gandi]: https://gandi.net/
 [Gandi LiveDNS API]: https://api.gandi.net/docs/livedns/
 [Helm]: https://helm.sh
-[image tags]: https://hub.docker.com/r/hexasolutions/cert-manager-webhook-gandi
+[image tags]: https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi
 [Kubernetes]: https://kubernetes.io/
 [setting-nameservers-for-dns01-self-check]: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
 [cert-manager-uninstall]: https://cert-manager.io/docs/installation/uninstall/kubernetes/

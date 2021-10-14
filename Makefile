@@ -9,7 +9,7 @@ endif
 
 GO_VERSION ?= $(shell go mod edit -json | grep -${GREP_PREGEX_FLAG}o '"Go":\s+"([0-9.]+)"' | sed -E 's/.+"([0-9.]+)"/\1/')
 
-IMAGE_NAME := hexasolutions/cert-manager-webhook-gandi
+IMAGE_NAME := bwolf/cert-manager-webhook-gandi
 IMAGE_TAG := 0.2.0
 
 OUT := $(shell pwd)/_out
@@ -42,7 +42,7 @@ build:
 
 package:
 	helm package deploy/cert-manager-webhook-gandi -d charts/
-	helm repo index charts/ --url https://hexa-solutions.github.io/cert-manager-webhook-gandi
+	helm repo index charts/ --url https://bwolf.github.io/cert-manager-webhook-gandi
 
 .PHONY: rendered-manifest.yaml
 rendered-manifest.yaml:
