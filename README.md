@@ -19,11 +19,11 @@ Ready made images are hosted on Docker Hub ([image tags]). Use at your own risk:
 
 
 ### Release History
-Refer to the [ChangeLog](ChangeLog.md) file.
+Refer to the [CHANGELOG](CHANGELOG.md) file.
 
 
 ## Compatibility
-This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x on `amd64`. In theory it should work on other hardware platforms as well but no steps have been taken to verify this. Please drop me a note if you had success.
+This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 on `amd64`. In theory it should work on other hardware platforms as well but no steps have been taken to verify this. Please drop me a note if you had success.
 
 
 ## Testing with Minikube
@@ -36,174 +36,150 @@ This webhook has been tested with [cert-manager] v0.13.1 and Kubernetes v0.17.x 
 
 2. Install [cert-manager] with [Helm]:
 
-        kubectl create namespace cert-manager
-        kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
-
         helm repo add jetstack https://charts.jetstack.io
-        helm install cert-manager --namespace cert-manager \
-            --set 'extraArgs={--dns01-recursive-nameservers=8.8.8.8:53\,1.1.1.1:53}' \
-            jetstack/cert-manager
+
+        helm install cert-manager jetstack/cert-manager \
+            --namespace cert-manager \
+            --create-namespace \
+            --set installCRDs=true \
+            --version v1.5.4 \
+            --set 'extraArgs={--dns01-recursive-nameservers=8.8.8.8:53\,1.1.1.1:53}'
 
         kubectl get pods --namespace cert-manager --watch
 
-    **Note**: refer to Name servers in the official [documentation][setting-nameservers-for-dns01-self-check] according the `extraArgs`.
+   **Note**: refer to Name servers in the official [documentation][setting-nameservers-for-dns01-self-check] according the `extraArgs`.
 
-    **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
+   **Note**: ensure that the custom CRDS of cert-manager match the major version of the cert-manager release by comparing the URL of the CRDS with the helm info of the charts app version:
 
             helm search repo jetstack
 
-    Example output:
+   Example output:
 
             NAME                    CHART VERSION   APP VERSION     DESCRIPTION
-            jetstack/cert-manager   v0.13.1         v0.13.1         A Helm chart for cert-manager
+            jetstack/cert-manager   v1.5.4          v1.5.4          A Helm chart for cert-manager
 
-    Check the state and ensure that all pods are running fine (watch out for any issues regarding the `cert-manager-webhook-` pod  and its volume mounts):
+   Check the state and ensure that all pods are running fine (watch out for any issues regarding the `cert-manager-webhook-` pod and its volume mounts):
 
             kubectl describe pods -n cert-manager | less
 
 
-3. Create the secret to keep the Gandi API key in the default namespace, where later on the Issuer and the Certificate are created:
+3. Create the secret to keep the Gandi API key in the cert-manager namespace:
 
         kubectl create secret generic gandi-credentials \
-            --from-literal=api-token='<GANDI-API-KEY>'
+            --namespace cert-manager --from-literal=api-token='<GANDI-API-KEY>'
 
-    **Note**: See [RBAC Authorization]:
+   *The `Secret` must reside in the same namespace as `cert-manager`.*
 
-    > A Role can only be used to grant access to resources within a single namespace.
+4. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
-    *As far as I understand cert-manager, the `Secret` must reside in the same namespace as the `Issuer` and `Certificate` resource.*
-
-4. Grant permission for the service-account to access the secret holding the Gandi API key:
-
-        kubectl apply -f rbac.yaml
-
-5. Deploy this locally built webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
+   *The `features.apiPriorityAndFairness` argument must be removed or set to `false` for Kubernetes older than 1.20.*
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
+            --set features.apiPriorityAndFairness=true \
             --set image.repository=cert-manager-webhook-gandi \
             --set image.tag=latest \
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    To deploy using the image from Docker Hub (for example using the `v0.1.1` tag):
+   To deploy using the image from Docker Hub (for example using the `0.2.0` tag):
 
         helm install cert-manager-webhook-gandi \
             --namespace cert-manager \
-            --set image.tag=v0.1.1 \
+            --set features.apiPriorityAndFairness=true \
+            --set image.tag=0.2.0 \
             --set logLevel=2 \
             ./deploy/cert-manager-webhook-gandi
 
-    Check the logs
+   To deploy using the Helm repository (for example using the `v0.2.0` version):
+
+        helm install cert-manager-webhook-gandi \
+            --repo https://bwolf.github.io/cert-manager-webhook-gandi
+            --version v0.2.0 \
+            --namespace cert-manager \
+            --set features.apiPriorityAndFairness=true \
+            --set logLevel=2
+
+   Check the logs
 
             kubectl get pods -n cert-manager --watch
             kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
-6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden):
+6. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
-        cat << EOF | sed "s/invalid@example.com/$email/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
-        kind: Issuer
-        metadata:
-          name: letsencrypt-staging
-          namespace: default
-        spec:
-          acme:
-            # The ACME server URL
-            server: https://acme-staging-v02.api.letsencrypt.org/directory
-            # Email address used for ACME registration
-            email: invalid@example.com
-            # Name of a secret used to store the ACME account private key
-            privateKeySecretRef:
-              name: letsencrypt-staging
-            solvers:
-            - dns01:
-                webhook:
-                  groupName: acme.bwolf.me
-                  solverName: gandi
-                  config:
-                    apiKeySecretRef:
-                      key: api-token
-                      name: gandi-credentials
-        EOF
+   See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
 
-    Check status of the Issuer:
+   Don't forget to replace email `invalid@example.com`.
+
+   Check status of the Issuer:
 
         kubectl describe issuer letsencrypt-staging
 
-    *Note*: The production Issuer is [similar][ACME documentation].
+   You can deploy a ClusterIssuer instead : see [letsencrypt-staging-clusterissuer.yaml](examples/issuers/letsencrypt-staging-clusterissuer.yaml)
 
-7. Issue a [Certificate] for your `$DOMAIN`:
+   *Note*: The production Issuer is [similar][ACME documentation].
 
-        cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
-        kind: Certificate
-        metadata:
-          name: example-com
-        spec:
-          dnsNames:
-          - example-com
-          issuerRef:
-            name: letsencrypt-staging
-          secretName: example-com-tls
-        EOF
+7. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
-    Check the status of the Certificate:
+   Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
-        kubectl describe certificate $DOMAIN
+   Create the Certificate:
 
-    Display the details like the common name and subject alternative names:
+        kubectl apply -f ./examples/certificates/certif-example-com.yaml
 
-        kubectl get secret $DOMAIN-tls -o yaml
+   Check the status of the Certificate:
 
-8. Issue a wildcard Certificate for your `$DOMAIN`:
+        kubectl describe certificate example-com
 
-        cat << EOF | sed "s/example-com/$DOMAIN/" | kubectl apply -f -
-        apiVersion: cert-manager.io/v1alpha2
-        kind: Certificate
-        metadata:
-          name: wildcard-example-com
-        spec:
-          dnsNames:
-          - '*.example-com'
-          issuerRef:
-            name: letsencrypt-staging
-          secretName: wildcard-example-com-tls
-        EOF
+   Display the details like the common name and subject alternative names:
 
-    Check the status of the Certificate:
+        kubectl get secret example-com-tls -o yaml
 
-        kubectl describe certificate $DOMAIN
+   If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
 
-    Display the details like the common name and subject alternative names:
+8. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
-        kubectl get secret wildcard-$DOMAIN-tls -o yaml
+   Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
-99. Uninstall this webhook:
+   Create the Certificate:
+
+        kubectl apply -f ./examples/certificates/certif-wildcard-example-com.yaml
+
+   Check the status of the Certificate:
+
+        kubectl describe certificate wildcard-example-com
+
+   Display the details like the common name and subject alternative names:
+
+        kubectl get secret wildcard-example-com-tls -o yaml
+
+   If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
+
+9. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
-        kubectl delete -f rbac.yaml
-        kubectl delete gandi-credentials
+        kubectl delete gandi-credentials --namespace cert-manager
 
-100. Uninstalling cert-manager:
-This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
+10. Uninstalling cert-manager:
+    This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 
 ## Development
 **Note**: If some tool (IDE or build process) fails resolving a dependency, it may be the cause that a indirect dependency uses `bzr` for versioning. In such a case it may help to put the `bzr` binary into `$PATH` or `$GOPATH/bin`.
 
 
-## Release process
-- Code changes result in a new image version and Git tag
-- Helm chart changes result in a new chart version
+## Release process (automated with [GitHub actions](.github/workflows/main.yml))
+- Changes in the Go code result in the build of a Docker image and the release of a new Helm chart
+- Changes at Helm chart level only, result in the release of a new Chart without building a new Docker image
 - All other changes are pushed to master
-- All versions are to be documented in [ChangeLog](ChangeLog.md)
+- All versions are to be documented in [CHANGELOG](CHANGELOG.md)
 
+**Note**: All changes to the Go code or Helm chart must go with a version tag `vX.X.X` to trigger the GitHub workflow
+
+**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/bwolf/cert-manager-webhook-gandi/releases)
 
 ## Conformance test
 Please note that the test is not a typical unit or integration test. Instead it invokes the web hook in a Kubernetes-like environment which asks the web hook to really call the DNS provider (.i.e. Gandi). It attempts to create an `TXT` entry like `cert-manager-dns01-tests.example.com`, verifies the presence of the entry via Google DNS. Finally it removes the entry by calling the cleanup method of web hook.
-
-**Note**: Replace the string `darwin` in the URL below with an OS matching your system (e.g. `linux`).
 
 As said above, the conformance test is run against the real Gandi API. Therefore you *must* have a Gandi account, a domain and an API key.
 
@@ -211,8 +187,8 @@ As said above, the conformance test is run against the real Gandi API. Therefore
 cp testdata/gandi/api-key.yaml.sample testdata/gandi/api-key.yaml
 echo -n $YOUR_GANDI_API_KEY | base64 | pbcopy # or xclip
 $EDITOR testdata/gandi/api-key.yaml
-./scripts/fetch-test-binaries.sh
-TEST_ZONE_NAME=example.com. go test -v .
+TEST_ZONE_NAME=example.com. make test
+make clean
 ```
 
 
@@ -221,10 +197,9 @@ TEST_ZONE_NAME=example.com. go test -v .
 [Certificate]: https://cert-manager.io/docs/usage/certificate/
 [cert-manager]: https://cert-manager.io/
 [Gandi]: https://gandi.net/
-[Gandi LiveDNS API]: https://doc.livedns.gandi.net
+[Gandi LiveDNS API]: https://api.gandi.net/docs/livedns/
 [Helm]: https://helm.sh
 [image tags]: https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi
 [Kubernetes]: https://kubernetes.io/
-[RBAC Authorization]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 [setting-nameservers-for-dns01-self-check]: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
 [cert-manager-uninstall]: https://cert-manager.io/docs/installation/uninstall/kubernetes/

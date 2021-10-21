@@ -18,7 +18,6 @@ func TestRunsSuite(t *testing.T) {
 
 	solver := &gandiDNSProviderSolver{}
 	fixture := dns.NewFixture(solver,
-		dns.SetBinariesPath("__main__/hack/bin"),
 		dns.SetResolvedZone(zone),
 		dns.SetAllowAmbientCredentials(false),
 		dns.SetManifestPath("testdata/gandi"),

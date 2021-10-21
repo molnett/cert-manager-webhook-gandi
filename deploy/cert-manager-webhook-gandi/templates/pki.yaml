@@ -1,11 +1,11 @@
 ---
 # Create a selfsigned Issuer, in order to create a root CA certificate for
 # signing webhook serving certificates
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: {{ include "cert-manager-webhook-gandi.selfSignedIssuer" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Values.certManager.namespace | quote }}
   labels:
     app: {{ include "cert-manager-webhook-gandi.name" . }}
     chart: {{ include "cert-manager-webhook-gandi.chart" . }}
@@ -13,15 +13,13 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   selfSigned: {}
-
 ---
-
 # Generate a CA Certificate used to sign certificates for the webhook
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ include "cert-manager-webhook-gandi.rootCACertificate" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Values.certManager.namespace | quote }}
   labels:
     app: {{ include "cert-manager-webhook-gandi.name" . }}
     chart: {{ include "cert-manager-webhook-gandi.chart" . }}
@@ -34,15 +32,13 @@ spec:
     name: {{ include "cert-manager-webhook-gandi.selfSignedIssuer" . }}
   commonName: "ca.cert-manager-webhook-gandi.cert-manager"
   isCA: true
-
 ---
-
 # Create an Issuer that uses the above generated CA certificate to issue certs
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: {{ include "cert-manager-webhook-gandi.rootCAIssuer" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Values.certManager.namespace | quote }}
   labels:
     app: {{ include "cert-manager-webhook-gandi.name" . }}
     chart: {{ include "cert-manager-webhook-gandi.chart" . }}
@@ -51,15 +47,13 @@ metadata:
 spec:
   ca:
     secretName: {{ include "cert-manager-webhook-gandi.rootCACertificate" . }}
-
 ---
-
 # Finally, generate a serving certificate for the webhook to use
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ include "cert-manager-webhook-gandi.servingCertificate" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Values.certManager.namespace | quote }}
   labels:
     app: {{ include "cert-manager-webhook-gandi.name" . }}
     chart: {{ include "cert-manager-webhook-gandi.chart" . }}
@@ -72,5 +66,5 @@ spec:
     name: {{ include "cert-manager-webhook-gandi.rootCAIssuer" . }}
   dnsNames:
   - {{ include "cert-manager-webhook-gandi.fullname" . }}
-  - {{ include "cert-manager-webhook-gandi.fullname" . }}.{{ .Release.Namespace }}
-  - {{ include "cert-manager-webhook-gandi.fullname" . }}.{{ .Release.Namespace }}.svc
+  - {{ include "cert-manager-webhook-gandi.fullname" . }}.{{ .Values.certManager.namespace }}
+  - {{ include "cert-manager-webhook-gandi.fullname" . }}.{{ .Values.certManager.namespace }}.svc

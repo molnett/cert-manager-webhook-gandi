@@ -16,7 +16,7 @@ certManager:
 
 image:
   repository: bwolf/cert-manager-webhook-gandi
-  tag: latest
+  tag: v0.1.1
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -25,6 +25,11 @@ fullnameOverride: ""
 service:
   type: ClusterIP
   port: 443
+
+features:
+  # API Priority and Fairness should be enabled from Kubernetes 1.20
+  # https://kubernetes.io/docs/concepts/cluster-administration/flow-control/
+  apiPriorityAndFairness: false
 
 resources:
   {}

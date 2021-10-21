@@ -1,20 +1,20 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
-	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
-	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/klog"
-
 	"github.com/jetstack/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
 	"github.com/jetstack/cert-manager/pkg/acme/webhook/cmd"
+	cmmeta "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -196,7 +196,6 @@ func loadConfig(cfgJSON *extapi.JSON) (gandiDNSProviderConfig, error) {
 	return cfg, nil
 }
 
-
 func (c *gandiDNSProviderSolver) getDomainAndEntry(ch *v1alpha1.ChallengeRequest) (string, string) {
 	// Both ch.ResolvedZone and ch.ResolvedFQDN end with a dot: '.'
 	entry := strings.TrimSuffix(ch.ResolvedFQDN, ch.ResolvedZone)
@@ -211,7 +210,7 @@ func (c *gandiDNSProviderSolver) getApiKey(cfg *gandiDNSProviderConfig, namespac
 
 	klog.V(6).Infof("try to load secret `%s` with key `%s`", secretName, cfg.APIKeySecretRef.Key)
 
-	sec, err := c.client.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+	sec, err := c.client.CoreV1().Secrets(namespace).Get(context.Background(), secretName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("unable to get secret `%s`; %v", secretName, err)
 	}
@@ -225,4 +224,3 @@ func (c *gandiDNSProviderSolver) getApiKey(cfg *gandiDNSProviderConfig, namespac
 	apiKey := string(secBytes)
 	return &apiKey, nil
 }
-
