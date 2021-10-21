@@ -10,7 +10,5 @@ in pkgs.mkShell {
   buildInputs = with unstable; [
     go_1_16
     gopls
-    docker-compose
-    postgresql_13
   ];
 }
