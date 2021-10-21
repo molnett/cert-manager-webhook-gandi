@@ -22,3 +22,6 @@ cert-manager-webhook-gandi
 
 # JetBrains
 .idea
+
+# Nix
+.envrc
