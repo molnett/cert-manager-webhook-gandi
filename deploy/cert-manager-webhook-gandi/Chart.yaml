@@ -1,4 +1,4 @@
 apiVersion: v2
 description: A Helm chart for cert-manager-webhook-gandi
 name: cert-manager-webhook-gandi
-version: v0.1.1
+version: v0.2.0
