@@ -94,7 +94,7 @@ This webhook has been tested with [cert-manager] v1.5.4 and Kubernetes v1.22.2 o
    To deploy using the Helm repository (for example using the `v0.2.0` version):
 
         helm install cert-manager-webhook-gandi \
-            --repo https://bwolf.github.io/cert-manager-webhook-gandi
+            --repo https://bwolf.github.io/cert-manager-webhook-gandi \
             --version v0.2.0 \
             --namespace cert-manager \
             --set features.apiPriorityAndFairness=true \
