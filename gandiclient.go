@@ -48,7 +48,7 @@ func (c *GandiClient) doRequest(req *http.Request, readResponseBody bool) (int, 
 		fmt.Printf("Request: %q\n", dump)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Apikey %s", c.apiKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
 	client := http.Client{
 		Timeout: 30 * time.Second,
 	}
@@ -95,7 +95,7 @@ func (c *GandiClient) HasTxtRecord(domain *string, name *string) (bool, error) {
 		// Maybe parse response body here to really ensure that the record is present
 		return true, nil
 	} else {
-		return false, fmt.Errorf("unexpected HTTP status: %d", status)
+		return false, fmt.Errorf("unexpected HTTP status: %d, err: %w", status, err)
 	}
 }
 

@@ -4,7 +4,7 @@ metadata:
   name: example-com
 spec:
   dnsNames:
-  - example.com
+    - example.com
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer

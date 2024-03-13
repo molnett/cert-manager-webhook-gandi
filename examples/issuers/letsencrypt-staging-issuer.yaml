@@ -13,11 +13,13 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
-    - dns01:
-        webhook:
-          groupName: acme.bwolf.me
-          solverName: gandi
-          config:
-            apiKeySecretRef:
-              key: api-token
-              name: gandi-credentials
+      - dns01:
+          cnameStrategy: Follow
+          webhook:
+            groupName: acme.molnett.net
+            solverName: gandi
+            config:
+              rootDomain: ""
+              apiKeySecretRef:
+                key: api-token
+                name: gandi-credentials

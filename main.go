@@ -64,6 +64,7 @@ type gandiDNSProviderConfig struct {
 	// These fields will be set by users in the
 	// `issuer.spec.acme.dns01.providers.webhook.config` field.
 	APIKeySecretRef cmmeta.SecretKeySelector `json:"apiKeySecretRef"`
+	RootDomain      string                   `json:"rootDomain"`
 }
 
 // Name is used as the name for this DNS solver when referencing it on the ACME
@@ -100,6 +101,13 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	gandiClient := NewGandiClient(*apiKey)
 
 	entry, domain := c.getDomainAndEntry(ch)
+
+	if cfg.RootDomain != "" {
+		entry = strings.TrimPrefix(ch.ResolvedFQDN, "_acme-challenge.")
+		entry = strings.TrimSuffix(entry, ".")
+		domain = cfg.RootDomain
+	}
+
 	klog.V(6).Infof("present for entry=%s, domain=%s", entry, domain)
 
 	present, err := gandiClient.HasTxtRecord(&domain, &entry)
@@ -146,8 +154,16 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
 	entry, domain := c.getDomainAndEntry(ch)
 
+	if cfg.RootDomain != "" {
+		entry = ch.ResolvedZone
+		domain = cfg.RootDomain
+	}
+
+	klog.V(6).Infof("cleanup for entry=%s, domain=%s", entry, domain)
+
 	present, err := gandiClient.HasTxtRecord(&domain, &entry)
 	if err != nil {
+		klog.V(6).ErrorS(err, "hastxtrecord failed", "entry", entry, "domain", domain)
 		return fmt.Errorf("unable to check TXT record: %v", err)
 	}
 

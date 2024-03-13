@@ -4,11 +4,11 @@ certManager:
   namespace: cert-manager
   serviceAccountName: cert-manager
 image:
-  repository: bwolf/cert-manager-webhook-gandi
-  tag: 0.2.0
+  repository: quay.io/molnett/cert-manager-webhook-gandi
+  tag: 0.2.1
   pullPolicy: IfNotPresent
-nameOverride: ''
-fullnameOverride: ''
+nameOverride: ""
+fullnameOverride: ""
 service:
   type: ClusterIP
   port: 443

@@ -1,6 +1,10 @@
 # ACME webhook for Gandi (cert-manager-webhook-gandi)
 
-### This is a fork of the original project found here: [https://github.com/bwolf/cert-manager-webhook-gandi](https://github.com/bwolf/cert-manager-webhook-gandi)
+## This is a fork of the original project found here: [https://github.com/bwolf/cert-manager-webhook-gandi](https://github.com/bwolf/cert-manager-webhook-gandi)
+
+It was forked due to adding functionality specific to Molnett which might not be interesting for a larger audience. Thank you to the original author BWolf for the great work!
+
+## Introduction
 
 `cert-manager-webhook-gandi` is an ACME webhook for [cert-manager]. It provides an ACME (read: Let's Encrypt) webhook for [cert-manager], which allows to use a `DNS-01` challenge with [Gandi]. This allows to provide Let's Encrypt certificates to [Kubernetes] for service protocols other than HTTP and furthermore to request wildcard certificates. Internally it uses the [Gandi LiveDNS API] to communicate with Gandi.
 
@@ -39,7 +43,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
          helm repo add jetstack https://charts.jetstack.io
 
-         helm install cert-manager cert-manager/cert-manager \
+         helm install cert-manager jetstack/cert-manager \
              --namespace cert-manager \
              --create-namespace \
              --set installCRDs=true \
@@ -94,7 +98,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
     To deploy using the Helm repository (for example using the `v0.2.0` version):
 
          helm install cert-manager-webhook-gandi \
-             --repo https://bwolf.github.io/cert-manager-webhook-gandi \
+             --repo https://molnett.github.io/cert-manager-webhook-gandi \
              --version v0.2.0 \
              --namespace cert-manager \
              --set features.apiPriorityAndFairness=true \
@@ -176,7 +180,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
 **Note**: All changes to the Go code or Helm chart must go with a version tag `vX.X.X` to trigger the GitHub workflow
 
-**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/bwolf/cert-manager-webhook-gandi/releases)
+**Note**: Any Helm chart release results in the creation of a [GitHub release](https://github.com/molnett/cert-manager-webhook-gandi/releases)
 
 ## Conformance test
 
