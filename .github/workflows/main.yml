@@ -120,8 +120,7 @@ jobs:
       - build
 
     if: |
-      always() && needs.base.result == 'success' &&
-      ((needs.build.result == 'success' && needs.build.outputs.tag_commit != '' ) || (needs.build.result == 'skipped' && needs.base.outputs.yaml_updated == 'true'))
+      needs.base.result == 'success' && (needs.build.result == 'success' || needs.base.outputs.yaml_updated == 'true')
 
     runs-on: ubuntu-latest
 
