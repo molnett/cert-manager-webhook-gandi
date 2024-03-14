@@ -113,6 +113,7 @@ jobs:
           value: ${{ needs.base.outputs.build_version }}
           message: "Update image tag to ${{ needs.base.outputs.build_version }}"
           token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
 
   release:
     needs:
