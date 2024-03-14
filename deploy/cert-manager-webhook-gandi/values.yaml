@@ -5,10 +5,10 @@ certManager:
   serviceAccountName: cert-manager
 image:
   repository: quay.io/molnett/cert-manager-webhook-gandi
-  tag: 0.2.1
+  tag: 0.2.2
   pullPolicy: IfNotPresent
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 service:
   type: ClusterIP
   port: 443
