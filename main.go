@@ -107,6 +107,8 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	if cfg.RootDomain != "" {
 		entry = strings.TrimPrefix(ch.ResolvedFQDN, "_acme-challenge.")
 		entry = strings.TrimSuffix(entry, ".")
+		entry = strings.Replace(entry, ".", "_", -1)
+		entry = entry + ".verify"
 		domain = cfg.RootDomain
 	}
 

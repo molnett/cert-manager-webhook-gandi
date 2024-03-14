@@ -10,7 +10,7 @@ endif
 GO_VERSION ?= $(shell go mod edit -json | grep -${GREP_PREGEX_FLAG}o '"Go":\s+"([0-9.]+)"' | sed -E 's/.+"([0-9.]+)"/\1/')
 
 IMAGE_NAME := molnett/cert-manager-webhook-gandi
-IMAGE_TAG := 0.2.1
+IMAGE_TAG := 0.2.2
 
 OUT := $(shell pwd)/_out
 

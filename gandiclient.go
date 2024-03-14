@@ -118,13 +118,13 @@ func (c *GandiClient) CreateTxtRecord(domain *string, name *string, value *strin
 
 	req.Header.Set("Content-Type", "application/json")
 
-	status, _, err := c.doRequest(req, false)
+	status, body, err := c.doRequest(req, false)
 	if err != nil {
 		return err
 	}
 
 	if status != http.StatusCreated && status != http.StatusOK {
-		return fmt.Errorf("failed creating TXT record: %v", err)
+		return fmt.Errorf("failed creating TXT record: %d, %s", status, string(body))
 	}
 
 	return nil
