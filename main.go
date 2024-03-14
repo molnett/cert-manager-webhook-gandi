@@ -88,6 +88,7 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
+		klog.V(6).ErrorS(err, "unable to load config")
 		return fmt.Errorf("unable to load config: %v", err)
 	}
 
@@ -95,6 +96,7 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	apiKey, err := c.getApiKey(&cfg, ch.ResourceNamespace)
 	if err != nil {
+		klog.V(6).ErrorS(err, "unable to get API key")
 		return fmt.Errorf("unable to get API key: %v", err)
 	}
 
@@ -112,17 +114,20 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	present, err := gandiClient.HasTxtRecord(&domain, &entry)
 	if err != nil {
+		klog.V(6).ErrorS(err, "HasTxtRecord failed", "entry", entry, "domain", domain)
 		return fmt.Errorf("unable to check TXT record: %v", err)
 	}
 
 	if present {
 		err := gandiClient.UpdateTxtRecord(&domain, &entry, &ch.Key, GandiMinTtl)
 		if err != nil {
+			klog.V(6).ErrorS(err, "UreateTxtRecord failed", "entry", entry, "domain", domain)
 			return fmt.Errorf("unable to change TXT record: %v", err)
 		}
 	} else {
 		err := gandiClient.CreateTxtRecord(&domain, &entry, &ch.Key, GandiMinTtl)
 		if err != nil {
+			klog.V(6).ErrorS(err, "CreateTxtRecord failed", "entry", entry, "domain", domain)
 			return fmt.Errorf("unable to create TXT record: %v", err)
 		}
 	}
@@ -142,11 +147,13 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
+		klog.V(6).ErrorS(err, "unable to load config")
 		return err
 	}
 
 	apiKey, err := c.getApiKey(&cfg, ch.ResourceNamespace)
 	if err != nil {
+		klog.V(6).ErrorS(err, "unable to get API key")
 		return fmt.Errorf("unable to get API key: %v", err)
 	}
 
@@ -155,7 +162,8 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	entry, domain := c.getDomainAndEntry(ch)
 
 	if cfg.RootDomain != "" {
-		entry = ch.ResolvedZone
+		entry = strings.TrimPrefix(ch.ResolvedFQDN, "_acme-challenge.")
+		entry = strings.TrimSuffix(entry, ".")
 		domain = cfg.RootDomain
 	}
 
@@ -163,7 +171,7 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
 	present, err := gandiClient.HasTxtRecord(&domain, &entry)
 	if err != nil {
-		klog.V(6).ErrorS(err, "hastxtrecord failed", "entry", entry, "domain", domain)
+		klog.V(6).ErrorS(err, "HasTxtRecord failed", "entry", entry, "domain", domain)
 		return fmt.Errorf("unable to check TXT record: %v", err)
 	}
 
@@ -171,6 +179,7 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 		klog.V(6).Infof("deleting entry=%s, domain=%s", entry, domain)
 		err := gandiClient.DeleteTxtRecord(&domain, &entry)
 		if err != nil {
+			klog.V(6).ErrorS(err, "DeleteTxtRecord failed", "entry", entry, "domain", domain)
 			return fmt.Errorf("unable to remove TXT record: %v", err)
 		}
 	}
