@@ -56,9 +56,10 @@ jobs:
   build:
     needs: base
     if: ${{ needs.base.outputs.go_updated == 'true' }}
-
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       tag_commit: ${{ steps.update_image.outputs.commit }}
 
@@ -124,7 +125,9 @@ jobs:
       needs.base.result == 'success' && (needs.build.result == 'success' || needs.base.outputs.yaml_updated == 'true')
 
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Retrieve commit ref
         id: commit_ref
