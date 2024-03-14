@@ -12,6 +12,11 @@ Quoting the [ACME DNS-01 challenge]:
 
 > This challenge asks you to prove that you control the DNS for your domain name by putting a specific value in a TXT record under that domain name. It is harder to configure than HTTP-01, but can work in scenarios that HTTP-01 can’t. It also allows you to issue wildcard certificates. After Let’s Encrypt gives your ACME client a token, your client will create a TXT record derived from that token and your account key, and put that record at \_acme-challenge.<YOUR_DOMAIN>. Then Let’s Encrypt will query the DNS system for that record. If it finds a match, you can proceed to issue a certificate!
 
+## CName Following
+
+By setting the `rootDomain` in the `values.yaml` file, the webhook will follow CName records to the root domain. This is useful when you want to provision a certificate for a zone you don't have control over. For example, if you want to provision a certificate for `customer.com`, you can configure `rootDomain` to a zone you manage, for example `molnett.com`. This creates a `_acme-challenge.customer.com.molnett.com` domain, which the customer then can create a CName record to in their zone.
+This utilizes the `cnameStrategy: Follow` flag in cert-manager.
+
 ## Building
 
 Build the container image `cert-manager-webhook-gandi:latest`:
