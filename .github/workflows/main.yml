@@ -160,6 +160,7 @@ jobs:
           message: "Update chart version to ${{ needs.base.outputs.chart_version }}"
           token: ${{ secrets.GITHUB_TOKEN }}
           updateFile: true
+          branch: main
 
       - name: Install Helm
         uses: azure/setup-helm@v1
