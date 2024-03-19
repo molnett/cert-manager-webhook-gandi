@@ -55,7 +55,6 @@ jobs:
 
   build:
     needs: base
-    if: ${{ needs.base.outputs.go_updated == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
