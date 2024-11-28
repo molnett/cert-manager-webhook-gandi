@@ -1,4 +1,4 @@
-groupName: acme.bwolf.me
+groupName: acme.molnett.net
 logLevel: 6
 certManager:
   namespace: cert-manager
