@@ -109,6 +109,16 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 		entry = strings.TrimSuffix(entry, ".")
 		entry = strings.Replace(entry, ".", "_", -1)
 		entry = entry + ".verify"
+
+		// remove the cleaned root domain from the entry in case CNameFollow has added it
+		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
+		// which the above code turns into example_com_verify_molnett_net.verify
+		// so we need to remove the root domain from the entry.
+
+		// In case the domain has to been setup yet, it will simply resolve to the base domain.
+		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
+		// So the replace doesn't do anything
+		entry = strings.Replace(entry, strings.Replace(cfg.RootDomain, ".", "_", -1), "", 1)
 		domain = cfg.RootDomain
 	}
 
@@ -166,6 +176,18 @@ func (c *gandiDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	if cfg.RootDomain != "" {
 		entry = strings.TrimPrefix(ch.ResolvedFQDN, "_acme-challenge.")
 		entry = strings.TrimSuffix(entry, ".")
+		entry = strings.Replace(entry, ".", "_", -1)
+		entry = entry + ".verify"
+
+		// remove the cleaned root domain from the entry in case CNameFollow has added it
+		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
+		// which the above code turns into example_com_verify_molnett_net.verify
+		// so we need to remove the root domain from the entry.
+
+		// In case the domain has to been setup yet, it will simply resolve to the base domain.
+		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
+		// So the replace doesn't do anything
+		entry = strings.Replace(entry, strings.Replace(cfg.RootDomain, ".", "_", -1), "", 1)
 		domain = cfg.RootDomain
 	}
 
