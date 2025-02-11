@@ -12,10 +12,10 @@ Quoting the [ACME DNS-01 challenge]:
 
 > This challenge asks you to prove that you control the DNS for your domain name by putting a specific value in a TXT record under that domain name. It is harder to configure than HTTP-01, but can work in scenarios that HTTP-01 can’t. It also allows you to issue wildcard certificates. After Let’s Encrypt gives your ACME client a token, your client will create a TXT record derived from that token and your account key, and put that record at \_acme-challenge.<YOUR_DOMAIN>. Then Let’s Encrypt will query the DNS system for that record. If it finds a match, you can proceed to issue a certificate!
 
-## CName Following
+## Root Domain Mode
 
-By setting the `rootDomain` in the `values.yaml` file, the webhook will follow CName records to the root domain. This is useful when you want to provision a certificate for a zone you don't have control over. For example, if you want to provision a certificate for `customer.com`, you can configure `rootDomain` to a zone you manage, for example `molnett.com`. This creates a `_acme-challenge.customer.com.molnett.com` domain, which the customer then can create a CName record to in their zone.
-This utilizes the `cnameStrategy: Follow` flag in cert-manager.
+By setting the `rootDomain` in the `values.yaml` file, the webhook will add the TXT records to the root domain rather than the domain of the certificate. This is useful when you want to provision a certificate for a zone you don't have control over. For example, if you want to provision a certificate for `customer.com`, you can configure `rootDomain` to a zone you manage, for example `molnett.com`. This creates a `_acme-challenge.customer.com.molnett.com` domain, which the customer then can create a CName record to in their zone.
+This requires the `cnameStrategy: Follow` flag in cert-manager.
 
 ## Building
 
@@ -37,14 +37,14 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
 ## Testing with Minikube
 
-1.  Build this webhook in Minikube:
+1. Build this webhook in Minikube:
 
         minikube start --memory=4G --more-options
         eval $(minikube docker-env)
         make build
         docker images | grep webhook
 
-2.  Install [cert-manager] with [Helm]:
+2. Install [cert-manager] with [Helm]:
 
          helm repo add jetstack https://charts.jetstack.io
 
@@ -72,14 +72,14 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
              kubectl describe pods -n cert-manager | less
 
-3.  Create the secret to keep the Gandi API key in the cert-manager namespace:
+3. Create the secret to keep the Gandi API key in the cert-manager namespace:
 
          kubectl create secret generic gandi-credentials \
              --namespace cert-manager --from-literal=api-token='<GANDI-API-KEY>'
 
     _The `Secret` must reside in the same namespace as `cert-manager`._
 
-4.  Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
+4. Deploy this webhook (add `--dry-run` to try it and `--debug` to inspect the rendered manifests; Set `logLevel` to 6 for verbose logs):
 
     _The `features.apiPriorityAndFairness` argument must be removed or set to `false` for Kubernetes older than 1.20._
 
@@ -114,7 +114,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
              kubectl get pods -n cert-manager --watch
              kubectl logs -n cert-manager cert-manager-webhook-gandi-XYZ
 
-5.  Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
+5. Create a staging issuer (email addresses with the suffix `example.com` are forbidden).
 
     See [letsencrypt-staging-issuer.yaml](examples/issuers/letsencrypt-staging-issuer.yaml)
 
@@ -128,7 +128,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
     _Note_: The production Issuer is [similar][ACME documentation].
 
-6.  Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
+6. Issue a [Certificate] for your domain: see [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-example-com.yaml](examples/certificates/certif-example-com.yaml)
 
@@ -146,7 +146,7 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
     If you deployed a ClusterIssuer : use [certif-example-com-clusterissuer.yaml](examples/certificates/certif-example-com-clusterissuer.yaml)
 
-7.  Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
+7. Issue a wildcard Certificate for your domain: see [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
     Replace `your-domain` and `your.domain` in the [certif-wildcard-example-com.yaml](examples/certificates/certif-wildcard-example-com.yaml)
 
@@ -164,12 +164,12 @@ This webhook has been tested with [cert-manager] v1.14.4 and Kubernetes v1.22.2 
 
     If you deployed a ClusterIssuer : use [certif-wildcard-example-com-clusterissuer.yaml](examples/certificates/certif-wildcard-example-com-clusterissuer.yaml)
 
-8.  Uninstall this webhook:
+8. Uninstall this webhook:
 
         helm uninstall cert-manager-webhook-gandi --namespace cert-manager
         kubectl delete gandi-credentials --namespace cert-manager
 
-9.  Uninstalling cert-manager:
+9. Uninstalling cert-manager:
     This is out of scope here. Refer to the official [documentation][cert-manager-uninstall].
 
 ## Development
@@ -208,7 +208,6 @@ make clean
 [Gandi]: https://gandi.net/
 [Gandi LiveDNS API]: https://api.gandi.net/docs/livedns/
 [Helm]: https://helm.sh
-[image tags]: https://hub.docker.com/r/bwolf/cert-manager-webhook-gandi
 [Kubernetes]: https://kubernetes.io/
 [setting-nameservers-for-dns01-self-check]: https://cert-manager.io/docs/configuration/acme/dns01/#setting-nameservers-for-dns01-self-check
 [cert-manager-uninstall]: https://cert-manager.io/docs/installation/uninstall/kubernetes/
