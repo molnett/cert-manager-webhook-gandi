@@ -102,24 +102,20 @@ func (c *gandiDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	gandiClient := NewGandiClient(*apiKey)
 
-	entry, domain := c.getDomainAndEntry(ch)
+	var entry string
+	var domain string
 
 	if cfg.RootDomain != "" {
-		entry = strings.TrimPrefix(ch.ResolvedFQDN, "_acme-challenge.")
-		entry = strings.TrimSuffix(entry, ".")
-		entry = strings.Replace(entry, ".", "_", -1)
+		// When is RootDomain mode, we want to use a cleaned version of the unresolved domain as the entry
+		// e.g. _acme-challenge.example.com if resolves to example_com.verify.molnett.net
+		// we don't want to create a TXT record for example_com_verify_molnett_net_verify.molnett.net
+		// we want to create a TXT record for example_com.verify.molnett.net
+		entry = strings.Replace(ch.DNSName, ".", "_", -1)
 		entry = entry + ".verify"
 
-		// remove the cleaned root domain from the entry in case CNameFollow has added it
-		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
-		// which the above code turns into example_com_verify_molnett_net.verify
-		// so we need to remove the root domain from the entry.
-
-		// In case the domain has to been setup yet, it will simply resolve to the base domain.
-		// e.g. _acme-challenge.example.com resolves to example_com.verify.molnett.net
-		// So the replace doesn't do anything
-		entry = strings.Replace(entry, strings.Replace(cfg.RootDomain, ".", "_", -1), "", 1)
 		domain = cfg.RootDomain
+	} else {
+		entry, domain = c.getDomainAndEntry(ch)
 	}
 
 	klog.V(6).Infof("present for entry=%s, domain=%s", entry, domain)
